@@ -3,6 +3,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton 
 from PyQt5.QtWidgets import QLabel, QLineEdit
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
  
 W = 400
 H = 450
@@ -15,14 +16,20 @@ class Example(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
-    """
+    
     def keyPressEvent(self, e):
-        if e.key() == Qt.PgUp:
-            if self.zoom
-            self.zooming += 1
-        elif e.key() == Qt.PgDown:
-            self.zooming -= 1
-    """
+        try:
+            if e.key() == Qt.Key_PageUp:
+                if self.zooming < 19:
+                    self.zooming += 1
+                    self.show_map_file()
+            elif e.key() == Qt.Key_PageDown:
+                if self.zooming > 0:
+                    self.zooming -= 1
+                    self.show_map_file()
+        except Exception as e:
+            print(e)
+    
  
     def initUI(self):
         self.setGeometry(100, 100, W, H)
@@ -53,7 +60,7 @@ class Example(QWidget):
         self.lbl.move(10, 60)
          
         self.count = 0
-        self.zooming = 8  # зум 
+        self.zooming = 0  # зум 
  
     def show_map_file(self):
         # Показать карту
