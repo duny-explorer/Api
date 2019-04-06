@@ -29,19 +29,15 @@ class Example(QMainWindow):
                     
             elif e.key() == Qt.Key_Down:
                 coord = float(self.lat_input.text()) - y_step
-                if coord > 86:
-                    coord = 86
-                elif coord <= -86:
-                    coord = -86
+                if coord < -85:
+                    coord = -85
                 self.lat_input.setText(str(coord))
                 self.show_map_file()
                 
             elif e.key() == Qt.Key_Up:
                 coord = float(self.lat_input.text()) + y_step
-                if coord > 86:
-                    coord = 86
-                elif coord <= -86:
-                    coord = -86
+                if coord > 85:
+                    coord = 85
                 self.lat_input.setText(str(coord))
                 self.show_map_file()    
                 
