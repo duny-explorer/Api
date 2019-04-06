@@ -43,12 +43,16 @@ class Example(QMainWindow):
                 
             elif e.key() == Qt.Key_Right:
                 coord = float(self.lon_input.text()) + x_step
-                self.lon_input.setText(str(coord % 360))
+                if coord > 180:
+                    coord = -(180 - x_step)
+                self.lon_input.setText(str(coord))
                 self.show_map_file()   
                 
             elif e.key() == Qt.Key_Left:
                 coord = float(self.lon_input.text()) - x_step
-                self.lon_input.setText(str(coord % 360))
+                if coord < -180:
+                    coord = 180 - x_step                
+                self.lon_input.setText(str(coord))
                 self.show_map_file()            
             
                 
