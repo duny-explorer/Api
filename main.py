@@ -1,7 +1,7 @@
 from mymapapi import *
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton 
-from PyQt5.QtWidgets import QLabel, QLineEdit
+from PyQt5.QtWidgets import QComboBox, QLineEdit
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 from PIL.ImageQt import ImageQt
@@ -70,35 +70,57 @@ class Example(QMainWindow):
 
         self.type_layout.addItems(["Схема", "Спутник", "Гибрид"])
         self.type_layout.activated[str].connect(self.change_type)
+
+        self.start.clicked.connect(self.show_map_file)
+        self.clear.clicked.connect(self.clear_mark)
              
         self.layout = "map"
         self.zooming = 8
+        self.mark = False
 
 
     def change_type(self, type_map):
         self.layout = {"Схема": "map", "Спутник": "sat", "Гибрид": "skl"}[type_map]
         self.show_map_file()
 
- 
-    def show_map_file(self):
-        lon = self.lon_input.text()
-        lat = self.lat_input.text()
 
+    def clear_mark(self):
+        self.mark = False
+        self.address.setText("")
+        self.show_map_file()
+        
+
+    def show_map_file(self):
         try:
-            f_name = get_file_map({"ll": ",".join([lon,lat]),
-                               "l": self.layout,
-                               "z": str(self.zooming),
-                               "size": "450,450"})
+            if self.sender() is not None and type(self.sender()) != type(self.type_layout) and self.sender().text() == "Искать":
+                self.zooming = 19
+                self.address.setText(find_org(get_coord(self.search.text()),
+                                              "0.005,0.005", self.search.text())['properties']['CompanyMetaData']["address"])
+                self.mark = get_coord(self.search.text()).split(",")
+                self.lat_input.setText(self.mark[1])
+                self.lon_input.setText(self.mark[0])
+                self.search.setText("")
+      
+            params = {"ll": ",".join([self.lon_input.text(),self.lat_input.text()]),
+                      "l": self.layout,
+                      "z": str(self.zooming),
+                      "size": "450,450"}
+
+            if self.mark:
+                params["pt"] = ",".join(self.mark) + ",pm2bl"
+                
+            f_name = get_file_map(params)
+        
+            if f_name:
+                self.image = f_name
+
+            self.qimage = ImageQt(self.image)
+            self.pixmap = QPixmap(QPixmap.fromImage(self.qimage))
+            self.label.setPixmap(self.pixmap)
+            self.show()
+
         except Exception as e:
             print(e)
-        
-        if f_name:
-            self.image = f_name
-
-        self.qimage = ImageQt(self.image)
-        self.pixmap = QPixmap(QPixmap.fromImage(self.qimage))
-        self.label.setPixmap(self.pixmap)
-        self.show()
      
  
 if __name__ == '__main__':
