@@ -16,6 +16,8 @@ class Example(QMainWindow):
     
     def keyPressEvent(self, e):
         try:
+            x_step = 360 / 2 ** self.zooming * 2
+            y_step = 180 / 2 ** self.zooming * 2
             if e.key() == Qt.Key_PageUp:
                 if self.zooming < 19:
                     self.zooming += 1
@@ -24,6 +26,36 @@ class Example(QMainWindow):
                 if self.zooming > 0:
                     self.zooming -= 1
                     self.show_map_file()
+                    
+            elif e.key() == Qt.Key_Down:
+                coord = float(self.lat_input.text()) - y_step
+                if coord > 86:
+                    coord = 86
+                elif coord <= -86:
+                    coord = -86
+                self.lat_input.setText(str(coord))
+                self.show_map_file()
+                
+            elif e.key() == Qt.Key_Up:
+                coord = float(self.lat_input.text()) + y_step
+                if coord > 86:
+                    coord = 86
+                elif coord <= -86:
+                    coord = -86
+                self.lat_input.setText(str(coord))
+                self.show_map_file()    
+                
+            elif e.key() == Qt.Key_Right:
+                coord = float(self.lon_input.text()) + x_step
+                self.lon_input.setText(str(coord % 360))
+                self.show_map_file()   
+                
+            elif e.key() == Qt.Key_Left:
+                coord = float(self.lon_input.text()) - x_step
+                self.lon_input.setText(str(coord % 360))
+                self.show_map_file()            
+            
+                
         except Exception as e:
             print(e)
     
