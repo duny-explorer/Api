@@ -1,7 +1,7 @@
 from mymapapi import *
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QComboBox
-from PyQt5.QtWidgets import QLabel, QLineEdit
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton 
+from PyQt5.QtWidgets import QComboBox, QLineEdit
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 from PIL.ImageQt import ImageQt
@@ -18,12 +18,10 @@ class Example(QMainWindow):
         try:
             x_step = 360 / 2 ** self.zooming * 2
             y_step = 180 / 2 ** self.zooming * 2
-            
             if e.key() == Qt.Key_PageUp:
                 if self.zooming < 19:
                     self.zooming += 1
                     self.show_map_file()
-                    
             elif e.key() == Qt.Key_PageDown:
                 if self.zooming > 0:
                     self.zooming -= 1
@@ -56,6 +54,7 @@ class Example(QMainWindow):
                     coord = 180 - x_step                
                 self.lon_input.setText(str(coord))
                 self.show_map_file()            
+            
                 
         except Exception as e:
             print(e)
@@ -78,58 +77,43 @@ class Example(QMainWindow):
         self.zooming = 8
         self.ll = "55.7507, 37.6256"
         self.mark = False
-        self.mark_ll = '0,0'
 
 
     def change_type(self, type_map):
         self.layout = {"Схема": "map", "Спутник": "sat", "Гибрид": "skl"}[type_map]
+        print(0)
         self.show_map_file()  
         
+
  
     def show_map_file(self):
-        f_name = None
         try:
-            if self.sender() in (None, QComboBox):
-                lon = self.lon_input.text()
-                lat = self.lat_input.text()
-                self.ll = ",".join([lon,lat])
-                
-            else:
-                
-                if self.sender().text() == "Искать":
-                    self.zooming = 19
-                    self.mark = True
-                    self.ll = get_coord(self.search.text())
-                    coords = self.ll.split(',')
-                    self.mark_ll = self.ll
-                    self.lat_input.setText(coords[1])
-                    self.lon_input.setText(coords[0])
-            
-                else:
-                    lon = self.lon_input.text()
-                    lat = self.lat_input.text()
-                    self.ll = ",".join([lon,lat])
-
-            params = {"ll": self.ll,
+            if self.sender() is not None and type(self.sender()) != type(self.type_layout) and self.sender().text() == "Искать":
+                self.zooming = 19
+                self.mark = get_coord(self.search.text()).split(",")
+                self.lat_input.setText(self.mark[1])
+                self.lon_input.setText(self.mark[0])
+      
+            params = {"ll": ",".join([self.lon_input.text(),self.lat_input.text()]),
                       "l": self.layout,
                       "z": str(self.zooming),
                       "size": "450,450"}
-            
+
             if self.mark:
-                params["pt"] = self.mark_ll + ",pm2blywm"
-         
+                params["pt"] = ",".join(self.mark) + ",pm2bl"
+                
             f_name = get_file_map(params)
-            
+        
+            if f_name:
+                self.image = f_name
+
+            self.qimage = ImageQt(self.image)
+            self.pixmap = QPixmap(QPixmap.fromImage(self.qimage))
+            self.label.setPixmap(self.pixmap)
+            self.show()
+
         except Exception as e:
             print(e)
-        
-        if f_name:
-            self.image = f_name
-
-        self.qimage = ImageQt(self.image)
-        self.pixmap = QPixmap(QPixmap.fromImage(self.qimage))
-        self.label.setPixmap(self.pixmap)
-        self.show()
      
  
 if __name__ == '__main__':
