@@ -72,27 +72,34 @@ class Example(QMainWindow):
         self.type_layout.activated[str].connect(self.change_type)
 
         self.start.clicked.connect(self.show_map_file)
+        self.clear.clicked.connect(self.clear_mark)
              
         self.layout = "map"
         self.zooming = 8
-        self.ll = "55.7507, 37.6256"
         self.mark = False
 
 
     def change_type(self, type_map):
         self.layout = {"Схема": "map", "Спутник": "sat", "Гибрид": "skl"}[type_map]
-        print(0)
-        self.show_map_file()  
+        self.show_map_file()
+
+
+    def clear_mark(self):
+        self.mark = False
+        self.address.setText("")
+        self.show_map_file()
         
 
- 
     def show_map_file(self):
         try:
             if self.sender() is not None and type(self.sender()) != type(self.type_layout) and self.sender().text() == "Искать":
                 self.zooming = 19
+                self.address.setText(find_org(get_coord(self.search.text()),
+                                              "0.005,0.005", self.search.text())['properties']['CompanyMetaData']["address"])
                 self.mark = get_coord(self.search.text()).split(",")
                 self.lat_input.setText(self.mark[1])
                 self.lon_input.setText(self.mark[0])
+                self.search.setText("")
       
             params = {"ll": ",".join([self.lon_input.text(),self.lat_input.text()]),
                       "l": self.layout,
