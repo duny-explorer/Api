@@ -35,9 +35,17 @@ class Example(QMainWindow):
 
         self.pixmap = QPixmap.fromImage(ImageQt(self.image))
         self.label.setPixmap(self.pixmap)
+
+        self.type_layout.addItems(["Схема", "Спутник", "Гибрид"])
+        self.type_layout.activated[str].connect(self.change_type)
              
-        self.count = 0
+        self.layout = "map"
         self.zooming = 8
+
+
+    def change_type(self, type_map):
+        self.layout = {"Схема": "map", "Спутник": "sat", "Гибрид": "skl"}[type_map]
+        self.show_map_file()
 
  
     def show_map_file(self):
@@ -46,10 +54,10 @@ class Example(QMainWindow):
 
         try:
             f_name = get_file_map({"ll": ",".join([lon,lat]),
-                               "l": "map",
+                               "l": self.layout,
                                "z": str(self.zooming),
                                "size": "450,450"})
-        except Exception:
+        except Exception as e:
             print(e)
         
         if f_name:
