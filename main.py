@@ -70,25 +70,43 @@ class Example(QMainWindow):
 
         self.type_layout.addItems(["Схема", "Спутник", "Гибрид"])
         self.type_layout.activated[str].connect(self.change_type)
+
+        self.start.clicked.connect(self.show_map_file)
              
         self.layout = "map"
         self.zooming = 8
+        self.ll = "55.7507, 37.6256"
+        self.mark = False
 
 
     def change_type(self, type_map):
         self.layout = {"Схема": "map", "Спутник": "sat", "Гибрид": "skl"}[type_map]
-        self.show_map_file()
+        self.show_map_file()  
+        
 
  
     def show_map_file(self):
-        lon = self.lon_input.text()
-        lat = self.lat_input.text()
-
         try:
-            f_name = get_file_map({"ll": ",".join([lon,lat]),
-                               "l": self.layout,
-                               "z": str(self.zooming),
-                               "size": "450,450"})
+            if self.sender().text() == "Искать":
+                self.zooming = 19
+                self.mark = True
+                self.ll = get_coord(self.search.text())
+                print(00)
+        
+            elif self.sender().text() == "Показать":
+                lon = self.lon_input.text()
+                lat = self.lat_input.text()
+                self.ll = ",".join([lon,lat])
+            print(00) 
+            params = {"ll": self.ll,
+                      "l": self.layout,
+                      "z": str(self.zooming),
+                      "size": "450,450"}
+            print(00)
+            if self.mark:
+                params["pt"] = self.ll + ",pm2blywm"
+         
+            f_name = get_file_map(params)
         except Exception as e:
             print(e)
         
