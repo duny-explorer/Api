@@ -101,13 +101,17 @@ class Example(QMainWindow):
             self.address.setPlainText(self.exist_check())            
             self.show_map_file()
         elif button == Qt.RightButton:
-            result = find_org('{},{}'.format(x, y), '0.00045,0.00045', None, {"rspn": "1"})
-            if result and lonlat_distance(result[0]['geometry']['coordinates'], (x, y)) > 50:
-                self.org = result
-                self.clear_mark() 
-                self.mark = [x, y] 
-                self.address.setPlainText(self.exist_check()) 
+            try:
+                self.clear_mark()
+                result = find_org('{},{}'.format(x, y), '0.0001,0.0001', None)
+                if result and lonlat_distance(result[0]['geometry']['coordinates'], (x, y)) < 50: 
+                    self.obj = result[0] 
+                    self.mark = [x, y] 
+                    self.address.setPlainText(self.exist_check()) 
+                    
                 self.show_map_file()
+            except Exception as e:
+                print(e)
             
 
     def change_index(self, state):
