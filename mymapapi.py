@@ -4,10 +4,16 @@ from io import BytesIO
 import math
 
 
-def geocode(address):
+def geocode(address, params={}):
     geocoder_request = "http://geocode-maps.yandex.ru/1.x/"
+
+    map_params = {"geocode": address, "format": "json"}
+
+    if params:
+        map_params.update(params)
     
-    response = requests.get(geocoder_request, params={"geocode": address, "format": "json"})
+    response = requests.get(geocoder_request, params=map_params)
+
 
     if response:
         json_response = response.json()

@@ -94,11 +94,13 @@ class Example(QMainWindow):
         try:
             if self.sender() is not None and type(self.sender()) != type(self.type_layout) and self.sender().text() == "Искать":
                 self.zooming = 19
-                self.address.setText(find_org(get_coord(self.search.text()),
-                                              "0.005,0.005", self.search.text())['properties']['CompanyMetaData']["address"])
-                self.mark = get_coord(self.search.text()).split(",")
-                self.lat_input.setText(self.mark[1])
-                self.lon_input.setText(self.mark[0])
+                obj = find_org(get_coord(self.search.text()), "0.005,0.005", self.search.text())
+                self.address.setText(obj['properties']['CompanyMetaData']["address"])
+                self.mark = obj['geometry']['coordinates']
+                self.lat_input.setText(str(self.mark[1]))
+                self.lon_input.setText(str(self.mark[0]))
+
+          
                 self.search.setText("")
       
             params = {"ll": ",".join([self.lon_input.text(),self.lat_input.text()]),
@@ -107,7 +109,7 @@ class Example(QMainWindow):
                       "size": "450,450"}
 
             if self.mark:
-                params["pt"] = ",".join(self.mark) + ",pm2bl"
+                params["pt"] = "{},{}".format(*self.mark) + ",pm2bl"
                 
             f_name = get_file_map(params)
         
