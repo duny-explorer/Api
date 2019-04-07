@@ -73,7 +73,7 @@ def find_org(ll, spn, request, locale="ru_RU", params={}):
             Http статус: {status} ({reason})""".format(
             request=g_request, status=response.status_code, reason=response.reason))
     
-    organization = json_response["features"][0]
+    organization = json_response["features"]
     return organization
 
 

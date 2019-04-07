@@ -103,13 +103,11 @@ class Example(QMainWindow):
             
         elif button == Qt.RightButton: 
             self.clear_mark()
-            self.mark = [x, y]
-            self.obj = find_org('{},{}'.format(x, y), '0.0001,0.0001', None)
-            if lonlat_distance(self.obj['geometry']['coordinates'], self.mark) > 50:
-                self.clear_mark()
-                self.obj = None
-            else:
-                self.address.setPlainText(self.exist_check())  
+            result = find_org('{},{}'.format(x, y), '0.0001,0.0001', None)
+            if result and lonlat_distance(result[0]['geometry']['coordinates'], (x, y)) < 50: 
+                self.obj = result[0] 
+                self.mark = [x, y] 
+                self.address.setPlainText(self.exist_check()) 
             self.show_map_file()
  
 
