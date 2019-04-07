@@ -101,11 +101,13 @@ class Example(QMainWindow):
             self.address.setPlainText(self.exist_check())            
             self.show_map_file()
         elif button == Qt.RightButton:
-            self.clear_mark() 
-            self.mark = [x, y] 
-            self.obj = find_org('{},{}'.format(x, y), '0.0001,0.0001', None) 
-            self.address.setPlainText(self.exist_check()) 
-            self.show_map_file()
+            result = find_org('{},{}'.format(x, y), '0.00045,0.00045', None, {"rspn": "1"})
+            if result:
+                self.org = result[0]
+                self.clear_mark() 
+                self.mark = [x, y] 
+                self.address.setPlainText(self.exist_check()) 
+                self.show_map_file()
             
 
     def change_index(self, state):

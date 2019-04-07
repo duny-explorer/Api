@@ -51,7 +51,7 @@ def get_spn(address):
 
 def find_org(ll, spn, request, locale="ru_RU", params={}):
     search_api_server = "https://search-maps.yandex.ru/v1/"
-    api_key = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
+    api_key = ""
     search_params = {
     "apikey": api_key,
     "text": request,
@@ -73,7 +73,7 @@ def find_org(ll, spn, request, locale="ru_RU", params={}):
             Http статус: {status} ({reason})""".format(
             request=g_request, status=response.status_code, reason=response.reason))
     
-    organization = json_response["features"][0]
+    organization = json_response["features"]
     return organization
 
 
