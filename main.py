@@ -131,11 +131,11 @@ class Example(QMainWindow):
             
             if "postal_code" in self.obj['properties']["CompanyMetaData"]:
                 
-                return "{}. Индекс: {}".format(self.obj["CompanyMetaData"]["address"], self.obj["CompanyMetaData"]["postal_code"]) \
-                        if self.index.isChecked() == True else self.obj["CompanyMetaData"]["address"]
+                return "{}. Индекс: {}".format(self.obj['properties']["CompanyMetaData"]["address"], self.obj['properties']["CompanyMetaData"]["postal_code"]) \
+                        if self.index.isChecked() == True else self.obj['properties']["CompanyMetaData"]["address"]
             
-            return "{}. Индекс: нет индекса".format(self.obj["CompanyMetaData"]["address"]) \
-                    if self.index.isChecked() == True else self.obj["CompanyMetaData"]["address"]
+            return "{}. Индекс: нет индекса".format(self.obj['properties']["CompanyMetaData"]["address"]) \
+                    if self.index.isChecked() == True else self.obj['properties']["CompanyMetaData"]["address"]
             
  
 
