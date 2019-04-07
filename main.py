@@ -88,30 +88,30 @@ class Example(QMainWindow):
 
     def get_pos(self, event):
         button = event.button()
+        self.x_step = (360 / 2 ** self.zooming) * 1.76
+        self.y_step = (180 / 2 ** self.zooming) * 2            
+        x, y = event.pos().x() - 225, event.pos().y() - 225
+        x = float(self.lon_input.text()) + self.x_step / 450 * x
+        y = float(self.lat_input.text()) - self.y_step / 450 * y
+
         if button == Qt.LeftButton:
-            self.x_step = (360 / 2 ** self.zooming) * 1.76
-            self.y_step = (180 / 2 ** self.zooming) * 2            
-            x, y = event.pos().x() - 225, event.pos().y() - 225
-            x = float(self.lon_input.text()) + self.x_step / 450 * x
-            y = float(self.lat_input.text()) - self.y_step / 450 * y
             self.clear_mark()
             self.mark = [x, y]
             self.obj = geocode('{},{}'.format(x, y))
             self.address.setPlainText(self.exist_check())            
             self.show_map_file()
             
-        elif button == Qt.RightButton:
-            self.x_step = (360 / 2 ** self.zooming) * 1.76
-            self.y_step = (180 / 2 ** self.zooming) * 2            
-            x, y = event.pos().x() - 225, event.pos().y() - 225
-            x = float(self.lon_input.text()) + self.x_step / 450 * x
-            y = float(self.lat_input.text()) - self.y_step / 450 * y
+        elif button == Qt.RightButton: 
             self.clear_mark()
             self.mark = [x, y]
             self.obj = find_org('{},{}'.format(x, y), '0.0001,0.0001', None)
-            self.address.setPlainText(self.exist_check())            
-            self.show_map_file()            
-        
+            if lonlat_distance(self.obj['geometry']['coordinates'], self.mark) > 50:
+                self.clear_mark()
+                self.obj = None
+            else:
+                self.address.setPlainText(self.exist_check())  
+            self.show_map_file()
+ 
 
     def change_index(self, state):
         if self.address.toPlainText():
@@ -119,24 +119,18 @@ class Example(QMainWindow):
 
 
     def exist_check(self):
-        if 'metaDataProperty' in self.obj:
-            if "postal_code" in self.obj["metaDataProperty"]["GeocoderMetaData"]["Address"]:
-                return "{}. Индекс: {}".format(self.obj["metaDataProperty"]["GeocoderMetaData"]["text"], self.obj["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]) \
-                        if self.index.isChecked() == True else self.obj["metaDataProperty"]["GeocoderMetaData"]["text"]
-    
-            return "{}. Индекс: нет индекса".format(self.obj["metaDataProperty"]["GeocoderMetaData"]["text"]) \
-                    if self.index.isChecked() == True else self.obj["metaDataProperty"]["GeocoderMetaData"]["text"]
-        
-        elif 'CompanyMetaData' in self.obj['properties']:
-            
-            if "postal_code" in self.obj['properties']["CompanyMetaData"]:
-                
-                return "{}. Индекс: {}".format(self.obj['properties']["CompanyMetaData"]["address"], self.obj['properties']["CompanyMetaData"]["postal_code"]) \
-                        if self.index.isChecked() == True else self.obj['properties']["CompanyMetaData"]["address"]
-            
-            return "{}. Индекс: нет индекса".format(self.obj['properties']["CompanyMetaData"]["address"]) \
-                    if self.index.isChecked() == True else self.obj['properties']["CompanyMetaData"]["address"]
-            
+
+        address = self.obj["metaDataProperty"]["GeocoderMetaData"]["text"] if "metaDataProperty" in self.obj else \
+                  self.obj['properties']['CompanyMetaData']["address"]
+
+        if "metaDataProperty" in self.obj and "postal_code" in self.obj["metaDataProperty"]["GeocoderMetaData"]["Address"]:
+            index = self.obj["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
+        elif "properties" in self.obj and "postalCode" in self.obj['properties']['CompanyMetaData']:
+            index = self.obj['properties']['CompanyMetaData']["postalCode"]
+        else:
+            index = ""
+
+        return "{}. Индекс: {}".format(address, index)
  
 
     def change_type(self, type_map):
@@ -156,11 +150,9 @@ class Example(QMainWindow):
                 self.zooming = 19
                 self.obj = geocode(self.search.text())
                 self.address.setPlainText(self.exist_check())
-                self.mark = self.obj["Point"]["pos"].split()
+                self.mark = self.obj["Point"]["pos"].split() if "Point" in self.obj else self.obj['geometry']['coordinates']
                 self.lat_input.setText(str(self.mark[1]))
                 self.lon_input.setText(str(self.mark[0]))
-
-          
                 self.search.setText("")
       
             params = {"ll": ",".join([self.lon_input.text(),self.lat_input.text()]),
@@ -169,7 +161,7 @@ class Example(QMainWindow):
                       "size": "450,450"}
 
             if self.mark:
-                params["pt"] = "{},{}".format(*self.mark) + ",pm2bl"
+                params["pt"] = "{},{}".format(*self.mark) + ",pm2bll"
                 
             f_name = get_file_map(params)
         
