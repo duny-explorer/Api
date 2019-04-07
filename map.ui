@@ -19,7 +19,7 @@
      <x>0</x>
      <y>30</y>
      <width>781</width>
-     <height>771</height>
+     <height>791</height>
     </rect>
    </property>
    <widget class="QLineEdit" name="lat_input">
@@ -187,30 +187,27 @@
      <string>Просто нажать для сдвига карты</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="address">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>680</y>
-      <width>500</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="index">
     <property name="geometry">
      <rect>
-      <x>540</x>
-      <y>680</y>
+      <x>550</x>
+      <y>710</y>
       <width>211</width>
       <height>41</height>
      </rect>
     </property>
     <property name="text">
      <string>Показывать почтовый индекс?</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="address">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>690</y>
+      <width>501</width>
+      <height>87</height>
+     </rect>
     </property>
    </widget>
   </widget>

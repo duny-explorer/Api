@@ -89,21 +89,24 @@ class Example(QMainWindow):
     def get_pos(self, event):
         button = event.button()
         if button == Qt.LeftButton:
-            self.x_step = (360 / 2 ** self.zooming) * 1.76
-            self.y_step = (180 / 2 ** self.zooming) * 2            
-            x, y = event.pos().x() - 225, event.pos().y() - 225
-            x = float(self.lon_input.text()) + self.x_step / 450 * x
-            y = float(self.lat_input.text()) - self.y_step / 450 * y
-            self.clear_mark()
-            self.mark = [x, y]
-            #self.obj = find_org('{},{}'.format(x, y), "0.005,0.005", self.search.text())
-            #self.address.setText(self.exist_check())            
-            self.show_map_file()
+            try:
+                self.x_step = (360 / 2 ** self.zooming) * 1.76
+                self.y_step = (180 / 2 ** self.zooming) * 2            
+                x, y = event.pos().x() - 225, event.pos().y() - 225
+                x = float(self.lon_input.text()) + self.x_step / 450 * x
+                y = float(self.lat_input.text()) - self.y_step / 450 * y
+                self.clear_mark()
+                self.mark = [x, y]
+                self.obj = find_org('{},{}'.format(x, y), "0.005,0.005", self.search.text())
+                self.address.setPlainText(self.exist_check())            
+                self.show_map_file()
+            except Exception as e:
+                print(e)
         
 
     def change_index(self, state):
         if self.address.text():
-            self.address.setText(self.exist_check())
+            self.address.setPlainText(self.exist_check())
 
 
     def exist_check(self):
@@ -118,7 +121,7 @@ class Example(QMainWindow):
 
     def clear_mark(self):
         self.mark = False
-        self.address.setText("")
+        self.address.setPlainText("")
         self.show_map_file()
         
 
@@ -127,7 +130,7 @@ class Example(QMainWindow):
             if self.sender() is not None and type(self.sender()) != type(self.type_layout) and self.sender().text() == "Искать":
                 self.zooming = 19
                 self.obj = find_org(get_coord(self.search.text()), "0.005,0.005", self.search.text())
-                self.address.setText(self.exist_check())
+                self.address.setPlainText(self.exist_check())
                 self.mark = self.obj['geometry']['coordinates']
                 self.lat_input.setText(str(self.mark[1]))
                 self.lon_input.setText(str(self.mark[0]))
@@ -162,4 +165,5 @@ if __name__ == '__main__':
     ex = Example()
     ex.show()
     sys.exit(app.exec())
+
 
