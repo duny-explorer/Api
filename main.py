@@ -99,6 +99,18 @@ class Example(QMainWindow):
             self.obj = geocode('{},{}'.format(x, y))
             self.address.setPlainText(self.exist_check())            
             self.show_map_file()
+            
+        elif button == Qt.RightButton:
+            self.x_step = (360 / 2 ** self.zooming) * 1.76
+            self.y_step = (180 / 2 ** self.zooming) * 2            
+            x, y = event.pos().x() - 225, event.pos().y() - 225
+            x = float(self.lon_input.text()) + self.x_step / 450 * x
+            y = float(self.lat_input.text()) - self.y_step / 450 * y
+            self.clear_mark()
+            self.mark = [x, y]
+            self.obj = find_org('{},{}'.format(x, y), '0.0001,0.0001', None)
+            self.address.setPlainText(self.exist_check())            
+            self.show_map_file()            
         
 
     def change_index(self, state):
@@ -107,12 +119,24 @@ class Example(QMainWindow):
 
 
     def exist_check(self):
-        if "postal_code" in self.obj["metaDataProperty"]["GeocoderMetaData"]["Address"]:
-            return "{}. Индекс: {}".format(self.obj["metaDataProperty"]["GeocoderMetaData"]["text"], self.obj["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]) \
+        if 'metaDataProperty' in self.obj:
+            if "postal_code" in self.obj["metaDataProperty"]["GeocoderMetaData"]["Address"]:
+                return "{}. Индекс: {}".format(self.obj["metaDataProperty"]["GeocoderMetaData"]["text"], self.obj["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]) \
+                        if self.index.isChecked() == True else self.obj["metaDataProperty"]["GeocoderMetaData"]["text"]
+    
+            return "{}. Индекс: нет индекса".format(self.obj["metaDataProperty"]["GeocoderMetaData"]["text"]) \
                     if self.index.isChecked() == True else self.obj["metaDataProperty"]["GeocoderMetaData"]["text"]
-
-        return "{}. Индекс: нет индекса".format(self.obj["metaDataProperty"]["GeocoderMetaData"]["text"]) \
-                if self.index.isChecked() == True else self.obj["metaDataProperty"]["GeocoderMetaData"]["text"]
+        
+        elif 'CompanyMetaData' in self.obj['properties']:
+            
+            if "postal_code" in self.obj['properties']["CompanyMetaData"]:
+                
+                return "{}. Индекс: {}".format(self.obj["CompanyMetaData"]["address"], self.obj["CompanyMetaData"]["postal_code"]) \
+                        if self.index.isChecked() == True else self.obj["CompanyMetaData"]["address"]
+            
+            return "{}. Индекс: нет индекса".format(self.obj["CompanyMetaData"]["address"]) \
+                    if self.index.isChecked() == True else self.obj["CompanyMetaData"]["address"]
+            
  
 
     def change_type(self, type_map):
