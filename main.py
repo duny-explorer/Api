@@ -16,7 +16,7 @@ class Example(QMainWindow):
     
     def keyPressEvent(self, e):
         try:
-            x_step = 360 / 2 ** self.zooming * 2
+            x_step = 359 / 2 ** self.zooming * 2
             y_step = 180 / 2 ** self.zooming * 2
             if e.key() == Qt.Key_PageUp:
                 if self.zooming < 19:
@@ -71,12 +71,25 @@ class Example(QMainWindow):
         self.type_layout.addItems(["Схема", "Спутник", "Гибрид"])
         self.type_layout.activated[str].connect(self.change_type)
 
+        self.index.clicked.connect(self.change_index)
+
         self.start.clicked.connect(self.show_map_file)
         self.clear.clicked.connect(self.clear_mark)
              
         self.layout = "map"
         self.zooming = 8
         self.mark = False
+
+
+    def change_index(self, state):
+        if self.address.text():
+            self.address.setText(self.exist_check())
+
+
+    def exist_check(self):
+        return "{}. Индекс: {}".format(self.obj['properties']['CompanyMetaData']["address"], self.obj['properties']['CompanyMetaData']["postalCode"]) \
+    if self.index.isChecked() == True else self.obj['properties']['CompanyMetaData']["address"]
+            
 
 
     def change_type(self, type_map):
@@ -94,9 +107,9 @@ class Example(QMainWindow):
         try:
             if self.sender() is not None and type(self.sender()) != type(self.type_layout) and self.sender().text() == "Искать":
                 self.zooming = 19
-                obj = find_org(get_coord(self.search.text()), "0.005,0.005", self.search.text())
-                self.address.setText(obj['properties']['CompanyMetaData']["address"])
-                self.mark = obj['geometry']['coordinates']
+                self.obj = find_org(get_coord(self.search.text()), "0.005,0.005", self.search.text())
+                self.address.setText(self.exist_check())
+                self.mark = self.obj['geometry']['coordinates']
                 self.lat_input.setText(str(self.mark[1]))
                 self.lon_input.setText(str(self.mark[0]))
 
