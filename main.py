@@ -16,8 +16,9 @@ class Example(QMainWindow):
     
     def keyPressEvent(self, e):
         try:
-            x_step = 359 / 2 ** self.zooming * 2
-            y_step = 180 / 2 ** self.zooming * 2
+            self.x_step = 360 / 2 ** self.zooming * 1.76
+            self.y_step = 180 / 2 ** self.zooming * 2
+            
             if e.key() == Qt.Key_PageUp:
                 if self.zooming < 19:
                     self.zooming += 1
@@ -28,30 +29,30 @@ class Example(QMainWindow):
                     self.show_map_file()
                     
             elif e.key() == Qt.Key_Down:
-                coord = float(self.lat_input.text()) - y_step
+                coord = float(self.lat_input.text()) - self.y_step
                 if coord < -85:
                     coord = -85
                 self.lat_input.setText(str(coord))
                 self.show_map_file()
                 
             elif e.key() == Qt.Key_Up:
-                coord = float(self.lat_input.text()) + y_step
+                coord = float(self.lat_input.text()) + self.y_step
                 if coord > 85:
                     coord = 85
                 self.lat_input.setText(str(coord))
                 self.show_map_file()    
                 
             elif e.key() == Qt.Key_Right:
-                coord = float(self.lon_input.text()) + x_step
+                coord = float(self.lon_input.text()) + self.x_step
                 if coord > 180:
-                    coord = -(180 - x_step)
+                    coord = -(180 - self.x_step)
                 self.lon_input.setText(str(coord))
                 self.show_map_file()   
                 
             elif e.key() == Qt.Key_Left:
-                coord = float(self.lon_input.text()) - x_step
+                coord = float(self.lon_input.text()) - self.x_step
                 if coord < -180:
-                    coord = 180 - x_step                
+                    coord = 180 - self.x_step                
                 self.lon_input.setText(str(coord))
                 self.show_map_file()            
             
@@ -68,6 +69,8 @@ class Example(QMainWindow):
         self.pixmap = QPixmap.fromImage(ImageQt(self.image))
         self.label.setPixmap(self.pixmap)
 
+        self.label.mousePressEvent = self.get_pos
+
         self.type_layout.addItems(["Схема", "Спутник", "Гибрид"])
         self.type_layout.activated[str].connect(self.change_type)
 
@@ -79,7 +82,24 @@ class Example(QMainWindow):
         self.layout = "map"
         self.zooming = 8
         self.mark = False
+        self.x_step = (360 / 2 ** self.zooming) * 2
+        self.y_step = (180 / 2 ** self.zooming) * 2
 
+
+    def get_pos(self, event):
+        button = event.button()
+        if button == Qt.LeftButton:
+            self.x_step = (360 / 2 ** self.zooming) * 1.76
+            self.y_step = (180 / 2 ** self.zooming) * 2            
+            x, y = event.pos().x() - 225, event.pos().y() - 225
+            x = float(self.lon_input.text()) + self.x_step / 450 * x
+            y = float(self.lat_input.text()) - self.y_step / 450 * y
+            self.clear_mark()
+            self.mark = [x, y]
+            #self.obj = find_org('{},{}'.format(x, y), "0.005,0.005", self.search.text())
+            #self.address.setText(self.exist_check())            
+            self.show_map_file()
+        
 
     def change_index(self, state):
         if self.address.text():
@@ -88,9 +108,8 @@ class Example(QMainWindow):
 
     def exist_check(self):
         return "{}. Индекс: {}".format(self.obj['properties']['CompanyMetaData']["address"], self.obj['properties']['CompanyMetaData']["postalCode"]) \
-    if self.index.isChecked() == True else self.obj['properties']['CompanyMetaData']["address"]
+               if self.index.isChecked() == True else self.obj['properties']['CompanyMetaData']["address"]
             
-
 
     def change_type(self, type_map):
         self.layout = {"Схема": "map", "Спутник": "sat", "Гибрид": "skl"}[type_map]
