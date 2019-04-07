@@ -89,30 +89,31 @@ class Example(QMainWindow):
     def get_pos(self, event):
         button = event.button()
         if button == Qt.LeftButton:
-            try:
-                self.x_step = (360 / 2 ** self.zooming) * 1.76
-                self.y_step = (180 / 2 ** self.zooming) * 2            
-                x, y = event.pos().x() - 225, event.pos().y() - 225
-                x = float(self.lon_input.text()) + self.x_step / 450 * x
-                y = float(self.lat_input.text()) - self.y_step / 450 * y
-                self.clear_mark()
-                self.mark = [x, y]
-                self.obj = find_org('{},{}'.format(x, y), "0.005,0.005", self.search.text())
-                self.address.setPlainText(self.exist_check())            
-                self.show_map_file()
-            except Exception as e:
-                print(e)
+            self.x_step = (360 / 2 ** self.zooming) * 1.76
+            self.y_step = (180 / 2 ** self.zooming) * 2            
+            x, y = event.pos().x() - 225, event.pos().y() - 225
+            x = float(self.lon_input.text()) + self.x_step / 450 * x
+            y = float(self.lat_input.text()) - self.y_step / 450 * y
+            self.clear_mark()
+            self.mark = [x, y]
+            self.obj = find_org('{},{}'.format(x, y), "0.005,0.005", self.search.text())
+            self.address.setPlainText(self.exist_check())            
+            self.show_map_file()
         
 
     def change_index(self, state):
-        if self.address.text():
+        if self.address.toPlainText():
             self.address.setPlainText(self.exist_check())
 
 
     def exist_check(self):
-        return "{}. Индекс: {}".format(self.obj['properties']['CompanyMetaData']["address"], self.obj['properties']['CompanyMetaData']["postalCode"]) \
-               if self.index.isChecked() == True else self.obj['properties']['CompanyMetaData']["address"]
-            
+        if "postalCode" in self.obj['properties']['CompanyMetaData']:
+            return "{}. Индекс: {}".format(self.obj['properties']['CompanyMetaData']["address"], self.obj['properties']['CompanyMetaData']["postalCode"]) \
+                    if self.index.isChecked() == True else self.obj['properties']['CompanyMetaData']["address"]
+
+        return "{}. Индекс: нет индекса".format(self.obj['properties']['CompanyMetaData']["address"]) \
+                if self.index.isChecked() == True else self.obj['properties']['CompanyMetaData']["address"]
+ 
 
     def change_type(self, type_map):
         self.layout = {"Схема": "map", "Спутник": "sat", "Гибрид": "skl"}[type_map]
