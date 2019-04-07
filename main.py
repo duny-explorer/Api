@@ -102,8 +102,8 @@ class Example(QMainWindow):
             self.show_map_file()
         elif button == Qt.RightButton:
             result = find_org('{},{}'.format(x, y), '0.00045,0.00045', None, {"rspn": "1"})
-            if result:
-                self.org = result[0]
+            if result and lonlat_distance(result[0]['geometry']['coordinates'], (x, y)) > 50:
+                self.org = result
                 self.clear_mark() 
                 self.mark = [x, y] 
                 self.address.setPlainText(self.exist_check()) 
