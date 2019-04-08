@@ -124,14 +124,17 @@ class Example(QMainWindow):
         address = self.obj["metaDataProperty"]["GeocoderMetaData"]["text"] if "metaDataProperty" in self.obj else \
                   self.obj['properties']['CompanyMetaData']["address"]
 
-        if "metaDataProperty" in self.obj and "postal_code" in self.obj["metaDataProperty"]["GeocoderMetaData"]["Address"]:
-            index = self.obj["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
-        elif "properties" in self.obj and "postalCode" in self.obj['properties']['CompanyMetaData']:
-            index = self.obj['properties']['CompanyMetaData']["postalCode"]
-        else:
-            index = ""
+        if self.index.isChecked():
+            if "metaDataProperty" in self.obj and "postal_code" in self.obj["metaDataProperty"]["GeocoderMetaData"]["Address"]:
+                index = self.obj["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
+            elif "properties" in self.obj and "postalCode" in self.obj['properties']['CompanyMetaData']:
+                index = self.obj['properties']['CompanyMetaData']["postalCode"]
+            else:
+                index = ""
 
-        return "{}. Индекс: {}".format(address, index)
+            return "{}. Индекс: {}".format(address, index)
+
+        return(address)
  
 
     def change_type(self, type_map):
@@ -183,5 +186,4 @@ if __name__ == '__main__':
     ex = Example()
     ex.show()
     sys.exit(app.exec())
-
 
